@@ -5,53 +5,64 @@ services:
     build:
       context: .
       dockerfile: ./deploy/Dockerfile
-      target: prod
-    image: sowonpass_backend:${SOWONPASS_BACKEND_VERSION:-latest}
+    image: ghcr.io/gbswhs/sowonpass-backend:latest
     restart: always
+    ports:
+    - '8000:8000'
+    networks:
+    - sowonpass
     env_file:
     - .env
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       SOWONPASS_BACKEND_HOST: 0.0.0.0
       SOWONPASS_BACKEND_DB_HOST: sowonpass_backend-db
       SOWONPASS_BACKEND_DB_PORT: 3306
-      SOWONPASS_BACKEND_DB_USER: sowonpass_backend
-      SOWONPASS_BACKEND_DB_PASS: sowonpass_backend
-      SOWONPASS_BACKEND_DB_BASE: sowonpass_backend
+    depends_on:
+      db:
+        condition: service_started
 
   db:
-    image: bitnami/mysql:8.0.30
+    image: bitnami/mariadb:10.11
     hostname: sowonpass_backend-db
     restart: always
-    environment:
-      MYSQL_ROOT_USER: "sowonpass_backend"
-      MYSQL_ROOT_PASSWORD: "sowonpass_backend"
-      MYSQL_DATABASE: "sowonpass_backend"
-      MYSQL_AUTHENTICATION_PLUGIN: "mysql_native_password"
-    healthcheck:
-      test: mysqladmin ping -h localhost
-      interval: 10s
-      timeout: 5s
-      retries: 40
+    expose:
+    - 3306
+    networks:
+    - sowonpass
+    env_file:
+    - .env
     volumes:
     - sowonpass_backend-db-data:/bitnami/mysql/data
 
   migrator:
-    image: sowonpass_backend:${SOWONPASS_BACKEND_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+    image: ghcr.io/gbswhs/sowonpass-backend:latest
     restart: "no"
-    command: alembic upgrade head
-    environment:
-      SOWONPASS_BACKEND_DB_HOST: sowonpass_backend-db
-      SOWONPASS_BACKEND_DB_PORT: 3306
-      SOWONPASS_BACKEND_DB_USER: sowonpass_backend
-      SOWONPASS_BACKEND_DB_PASS: sowonpass_backend
-      SOWONPASS_BACKEND_DB_BASE: sowonpass_backend
+    entrypoint: python3 -m alembic upgrade head
+    networks:
+    - sowonpass
+    env_file:
+    - .env
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_started
 
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+    - '8080:8080'
+    networks:
+    - sowonpass
+    depends_on:
+      db:
+        condition: service_started
+
+
+networks:
+  sowonpass:
 
 
 volumes:
