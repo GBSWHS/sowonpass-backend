@@ -1,16 +1,18 @@
 name: Testing sowonpass_backend
 
-on: push
+on:
+  workflow_dispatch:
+  push:
 
 jobs:
   black:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
     - name: Install deps
       uses: knowsuchagency/poetry-install@v1
       env:
@@ -20,11 +22,11 @@ jobs:
   flake8:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
     - name: Install deps
       uses: knowsuchagency/poetry-install@v1
       env:
@@ -34,11 +36,11 @@ jobs:
   mypy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
     - name: Install deps
       uses: knowsuchagency/poetry-install@v1
       env:
@@ -50,11 +52,11 @@ jobs:
     services:
 
       sowonpass_backend-db:
-        image: bitnami/mysql:8.0.30
+        image: bitnami/mariadb:10.11
         env:
-          MYSQL_ROOT_PASSWORD: "sowonpass_backend"
-          MYSQL_ROOT_USER: "sowonpass_backend"
-          MYSQL_DATABASE: "sowonpass_backend"
+          MARIADB_ROOT_USER: "sowonpass_backend"
+          MARIADB_ROOT_PASSWORD: "sowonpass_backend"
+          MARIADB_DATABASE: "sowonpass_backend"
           MYSQL_AUTHENTICATION_PLUGIN: "mysql_native_password"
         options: >-
           --health-cmd="mysqladmin ping -u root"
@@ -64,11 +66,11 @@ jobs:
         ports:
         - 3306:3306
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.11'
     - name: Install deps
       uses: knowsuchagency/poetry-install@v1
       env:
