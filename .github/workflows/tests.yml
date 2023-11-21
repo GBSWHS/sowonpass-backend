@@ -118,7 +118,7 @@ jobs:
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      run: poetry install && poetry build && pip install dist/*.whl
     - name: Run pytest check
       run: poetry run pytest -vv --cov="sowonpass_backend" .
       env:
