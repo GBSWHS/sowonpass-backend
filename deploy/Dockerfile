@@ -139,8 +139,6 @@ COPY --from=builder /usr/lib/python${PYTHON_VERSION}/site.pyc /usr/lib/python${P
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/abc.pyc /usr/lib/python${PYTHON_VERSION}/
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/io.pyc /usr/lib/python${PYTHON_VERSION}/
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/codecs.pyc /usr/lib/python${PYTHON_VERSION}/
-
-WORKDIR /app/src
-COPY --from=builder /app/src /app/src
+# [AUTO_INSERT_POINT_END]
 
 CMD ["/python3", "-m", "sowonpass_backend"]
