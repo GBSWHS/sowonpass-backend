@@ -6,10 +6,16 @@ services:
       # Exposes application port.
     - "8000:8000"
     build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
       target: dev
+    image: sowonpass-backend:latest
     volumes:
       # Adds current directory as volume.
     - .:/app/src/
     environment:
       # Enables autoreload.
       SOWONPASS_BACKEND_RELOAD: "True"
+
+  migrator:
+    image: sowonpass-backend:latest
