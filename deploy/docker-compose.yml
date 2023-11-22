@@ -20,7 +20,7 @@ services:
       SOWONPASS_BACKEND_DB_PORT: 3306
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
 
   db:
     image: bitnami/mariadb:10.11
@@ -34,6 +34,11 @@ services:
     - .env
     volumes:
     - sowonpass_backend-db-data:/bitnami/mysql/data
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-u${SOWONPASS_BACKEND_DB_USER}", "-p${SOWONPASS_BACKEND_DB_PASS}"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
 
   migrator:
     build:
@@ -42,14 +47,14 @@ services:
       target: prod
     image: ghcr.io/gbswhs/sowonpass-backend:latest
     restart: "no"
-    command: ["sh", "-c", "source /venv/bin/activate && python3 -m alembic upgrade head"]
+    entrypoint: ["/python3", "-m", "alembic", "upgrade", "head"]
     networks:
     - sowonpass_backend
     env_file:
     - .env
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
 
   adminer:
     image: adminer
@@ -60,7 +65,7 @@ services:
     - sowonpass_backend
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
 
 
 networks:

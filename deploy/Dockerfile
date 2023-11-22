@@ -5,18 +5,17 @@ RUN apk add --update --no-cache python3 py3-pip
 RUN pip install --no-cache-dir poetry
 
 WORKDIR /app/src
-COPY pyproject.toml poetry.lock /app/src/
+COPY pyproject.toml poetry.lock alembic.ini /app/src/
 RUN poetry config virtualenvs.create false \
     && poetry install --only main
 
 COPY sowonpass_backend/ /app/src/sowonpass_backend/
 RUN poetry build && pip install --no-cache-dir dist/*.whl
-RUN rm -rf dist poetry.lock pyproject.toml sowonpass_backend
+RUN rm -rf dist sowonpass_backend
 
 WORKDIR /usr/lib/python${PYTHON_VERSION}/site-packages
 # [AUTO ADD PARAMS]
-RUN find /usr/lib/python${PYTHON_VERSION}/site-packages/ -mindepth 1 -maxdepth 1 -type d ! \( -name 'uvicorn*' -o -name 'greenlet*' -o -name 'sowonpass_backend*' -o -name 'pymysql*' -o -name 'aiomysql*' -o -name '_sysconfigdata__linux_x86_64-linux-gnu*' -o -name 'loguru*' -o -name 'sqlalchemy*' -o -name 'sniffio*' -o -name 'anyio*' -o -name 'starlette*' -o -name 'fastapi*' -o -name 'certifi*' -o -name 'urllib3*' -o -name 'sentry_sdk*' -o -name 'h11*' -o -name 'multidict*' -o -name 'idna*' -o -name 'yarl*' -o -name 'annotated_types*' -o -name 'dotenv*' -o -name 'pydantic*' -o -name 'pydantic_settings*' -o -name 'click*' \) -exec rm -rf {} +
-# remove distutils-precedence.pth if exists
+RUN find /usr/lib/python${PYTHON_VERSION}/site-packages/ -mindepth 1 -maxdepth 1 -type d ! \( -name 'uvicorn*' -o -name 'markupsafe*' -o -name 'mako*' -o -name 'alembic*' -o -name 'greenlet*' -o -name 'sowonpass_backend*' -o -name 'pymysql*' -o -name 'aiomysql*' -o -name '_sysconfigdata__linux_x86_64-linux-gnu*' -o -name 'loguru*' -o -name 'sqlalchemy*' -o -name 'sniffio*' -o -name 'anyio*' -o -name 'starlette*' -o -name 'fastapi*' -o -name 'certifi*' -o -name 'urllib3*' -o -name 'sentry_sdk*' -o -name 'h11*' -o -name 'multidict*' -o -name 'idna*' -o -name 'yarl*' -o -name 'annotated_types*' -o -name 'dotenv*' -o -name 'pydantic*' -o -name 'pydantic_settings*' -o -name 'click*' \) -exec rm -rf {} +
 RUN test -f distutils-precedence.pth && rm distutils-precedence.pth || true
 
 WORKDIR /usr/lib/python${PYTHON_VERSION}
@@ -41,6 +40,10 @@ COPY --from=builder /usr/lib/python${PYTHON_VERSION}/encodings/ /usr/lib/python$
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/site-packages/ /usr/lib/python${PYTHON_VERSION}/site-packages/
 
 # [AUTO_INSERT_POINT]
+COPY --from=builder /usr/lib/python${PYTHON_VERSION}/stringprep.pyc /usr/lib/python${PYTHON_VERSION}/
+COPY --from=builder /usr/lib/python${PYTHON_VERSION}/pkgutil.pyc /usr/lib/python${PYTHON_VERSION}/
+COPY --from=builder /usr/lib/python${PYTHON_VERSION}/argparse.pyc /usr/lib/python${PYTHON_VERSION}/
+COPY --from=builder /usr/lib/python${PYTHON_VERSION}/timeit.pyc /usr/lib/python${PYTHON_VERSION}/
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/getpass.pyc /usr/lib/python${PYTHON_VERSION}/
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/configparser.pyc /usr/lib/python${PYTHON_VERSION}/
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/_sysconfigdata__linux_x86_64-linux-gnu.pyc /usr/lib/python${PYTHON_VERSION}/
@@ -140,5 +143,9 @@ COPY --from=builder /usr/lib/python${PYTHON_VERSION}/abc.pyc /usr/lib/python${PY
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/io.pyc /usr/lib/python${PYTHON_VERSION}/
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/codecs.pyc /usr/lib/python${PYTHON_VERSION}/
 # [AUTO_INSERT_POINT_END]
+
+WORKDIR /app/src
+COPY --from=builder /app/src/ /app/src/
+COPY --from=builder /usr/lib/python${PYTHON_VERSION}/site-packages/sowonpass_backend/ /app/src/sowonpass_backend/
 
 CMD ["/python3", "-m", "sowonpass_backend"]
