@@ -3,7 +3,6 @@ version: '3.9'
 services:
   api:
     ports:
-      # Exposes application port.
     - "8000:8000"
     build:
       context: .
@@ -11,10 +10,8 @@ services:
       target: dev
     image: sowonpass-backend:latest
     volumes:
-      # Adds current directory as volume.
-    - .:/app/src/
+    - .:/app/
     environment:
-      # Enables autoreload.
       SOWONPASS_BACKEND_RELOAD: "True"
 
   migrator:
