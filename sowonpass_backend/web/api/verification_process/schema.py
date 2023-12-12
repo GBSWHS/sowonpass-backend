@@ -5,7 +5,7 @@ class VerificationProcessModelDTO(BaseModel):
     id: int
     name: str
     description: str
-    process_group_id: int
+    process_group_id: int | None
 
 
 class VerificationProcessModelInputDTO(BaseModel):
