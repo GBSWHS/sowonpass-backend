@@ -21,7 +21,6 @@ class UserDAO:
     async def read_user(self, user_id: int) -> UserModel | None:
         stmt = select(UserModel).where(UserModel.id == user_id)
         result = await self.session.execute(stmt)
-        await self.session.close()
         return result.scalar_one_or_none()
 
     async def delete_user(self, user_id: int) -> None:
