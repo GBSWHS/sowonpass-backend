@@ -21,7 +21,7 @@ async def get_process(
     return process
 
 
-@router.put("/{process_id}")
+@router.put("")
 async def add_process(
     new_process: VerificationProcessModelInputDTO,
     verification_process_dao: VerificationProcessDAO = Depends(),

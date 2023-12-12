@@ -15,7 +15,7 @@ async def get_user(user_id: int, user_dao: UserDAO = Depends()) -> UserModel:
     return user
 
 
-@router.put("/{user_id}")
+@router.put("")
 async def add_user(new_user: UserModelInputDTO, user_dao: UserDAO = Depends()) -> None:
     await user_dao.create_user(
         role=new_user.role,
