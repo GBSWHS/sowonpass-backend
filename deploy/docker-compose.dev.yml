@@ -14,5 +14,9 @@ services:
     environment:
       SOWONPASS_BACKEND_RELOAD: "True"
 
+  db:
+    ports:
+    - '3306:3306'
+
   migrator:
     image: sowonpass-backend:latest

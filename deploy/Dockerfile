@@ -47,3 +47,24 @@ COPY --from=builder /app/ /app/
 COPY --from=builder /usr/lib/python${PYTHON_VERSION}/site-packages/sowonpass_backend/ /app/sowonpass_backend/
 
 CMD ["/python3", "-m", "sowonpass_backend"]
+
+FROM alpine:3.18 as dev
+ARG PYTHON_VERSION=3.11
+
+#RUN apk update \
+#    && apk add --virtual build-deps gcc python3-dev py3-pip musl-dev \
+#    && apk add --no-cache mariadb-dev
+RUN apk add --update --no-cache python3 py3-pip
+RUN pip install --no-cache-dir poetry
+
+RUN cp /usr/bin/python3 /
+
+WORKDIR /app
+COPY pyproject.toml poetry.lock /app/
+RUN poetry config virtualenvs.create false \
+    && poetry install
+
+COPY . /app/
+RUN poetry build && pip install --no-cache-dir dist/*.whl
+
+CMD ["python3", "-m", "sowonpass_backend"]
