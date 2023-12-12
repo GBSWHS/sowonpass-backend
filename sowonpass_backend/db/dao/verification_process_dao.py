@@ -14,12 +14,10 @@ class VerificationProcessDAO:
         self,
         name: str,
         description: str,
-        process_group_id: int,
     ) -> None:
         stmt = insert(VerificationProcessModel).values(
             name=name,
             description=description,
-            process_group_id=process_group_id,
         )
         await self.session.execute(stmt)
 
