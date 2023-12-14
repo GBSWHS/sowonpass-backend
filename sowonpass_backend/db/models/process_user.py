@@ -2,8 +2,8 @@ from sqlalchemy import Column, ForeignKey, Table
 
 from sowonpass_backend.db.base import Base
 
-process_assignee = Table(
-    "process_assignee",
+process_user = Table(
+    "process_user",
     Base.metadata,
     Column(
         "verification_process",
