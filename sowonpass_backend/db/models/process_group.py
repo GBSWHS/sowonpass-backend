@@ -1,11 +1,15 @@
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from sqlalchemy.sql.sqltypes import DateTime, String
 
 from sowonpass_backend.db.base import Base
-from sowonpass_backend.db.models.verification_process import VerificationProcessModel
+
+if TYPE_CHECKING:
+    from sowonpass_backend.db.models.verification_process import (
+        VerificationProcessModel,
+    )
 
 
 class ProcessGroupModel(Base):
