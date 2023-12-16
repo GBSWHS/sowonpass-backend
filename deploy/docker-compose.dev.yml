@@ -8,15 +8,22 @@ services:
       context: .
       dockerfile: ./deploy/Dockerfile
       target: dev
-    image: sowonpass-backend:latest
+    image: sowonpass_backend:${SOWONPASS_BACKEND_VERSION:-latest}
     volumes:
     - .:/app/
     environment:
       SOWONPASS_BACKEND_RELOAD: "True"
-
-  db:
-    ports:
-    - '3306:3306'
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
 
   migrator:
-    image: sowonpass-backend:latest
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+      target: dev
+    image: sowonpass_backend:${SOWONPASS_BACKEND_VERSION:-latest}
+    entrypoint: alembic upgrade head
+    depends_on:
+      db:
+        condition: service_healthy

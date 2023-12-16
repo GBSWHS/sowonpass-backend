@@ -33,7 +33,7 @@ services:
     env_file:
     - .env
     volumes:
-    - sowonpass_backend-db-data:/bitnami/mysql/data
+    - sowonpass_backend-db-data:/var/lib/mysql
     healthcheck:
       test: mysqladmin ping -u${SOWONPASS_BACKEND_DB_USER} -p${SOWONPASS_BACKEND_DB_PASS}
       interval: 10s
@@ -49,8 +49,8 @@ services:
     env_file:
     - .env
     depends_on:
-      adminer:
-        condition: service_started
+      db:
+        condition: service_healthy
 
   adminer:
     image: adminer

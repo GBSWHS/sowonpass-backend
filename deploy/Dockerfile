@@ -57,8 +57,6 @@ ARG PYTHON_VERSION=3.11
 RUN apk add --update --no-cache python3 py3-pip
 RUN pip install --no-cache-dir poetry
 
-RUN cp /usr/bin/python3 /
-
 WORKDIR /app
 COPY pyproject.toml poetry.lock /app/
 RUN poetry config virtualenvs.create false \
