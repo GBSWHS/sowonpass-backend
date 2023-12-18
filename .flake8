@@ -94,6 +94,11 @@ per-file-ignores =
   DAR101,
   ; Found too many arguments
   WPS211,
+  ; Found too many await expressions
+  WPS217,
+  ; Found too many `assert` statements
+  WPS218,
+
 
   ; all init files
   __init__.py:
