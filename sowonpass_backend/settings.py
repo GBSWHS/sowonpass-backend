@@ -51,6 +51,14 @@ class Settings(BaseSettings):
     sentry_dsn: Optional[str] = None
     sentry_sample_rate: float = 1.0
 
+    # JWT configuration.
+    public_key_url: str = ""
+    client_id: str = ""
+    auth_secret: str = ""
+    auth_algorithm: str = ""
+    auth_expire_hours: int = 0
+    auth_refresh_expire_hours: int = 0
+
     @property
     def db_url(self) -> URL:
         """

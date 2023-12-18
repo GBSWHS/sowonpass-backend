@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sowonpass_backend.db.dependencies import get_db_session
 from sowonpass_backend.db.models.process_user import process_user
 from sowonpass_backend.db.models.user import UserModel
+from sowonpass_backend.db.models.verification_process import VerificationProcessModel
 
 
 class ProcessUserDAO:
@@ -19,11 +20,14 @@ class ProcessUserDAO:
         await self.session.execute(stmt)
 
     async def read_process_users(self, process_id: int) -> list[UserModel]:
-        stmt = select(process_user).where(
-            process_user.c.verification_process == process_id,
+        stmt = select(VerificationProcessModel).where(
+            VerificationProcessModel.id == process_id,
         )
         result = await self.session.execute(stmt)
-        return list(result.scalars().all())
+        process = result.scalars().first()
+        if not process:
+            return []
+        return list(process.users)
 
     async def delete_process_user(self, process_id: int, user_id: int) -> None:
         stmt = delete(process_user).where(
