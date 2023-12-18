@@ -29,10 +29,12 @@ class VerificationProcessModel(Base):
     users: Mapped[List["UserModel"]] = relationship(
         secondary=process_user,
         back_populates="processes",
+        lazy="joined",
     )
     assignees: Mapped[List["UserModel"]] = relationship(
         secondary=process_assignee,
         back_populates="assigned_processes",
+        lazy="joined",
     )
 
     time_created: Mapped[DateTime] = mapped_column(
