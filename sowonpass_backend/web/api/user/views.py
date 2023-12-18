@@ -7,21 +7,21 @@ from sowonpass_backend.web.api.user.schema import UserModelDTO, UserModelInputDT
 router = APIRouter()
 
 
+@router.put("")
+async def put_user(new_user: UserModelInputDTO, user_dao: UserDAO = Depends()) -> None:
+    await user_dao.create_user(
+        role=new_user.role,
+        name=new_user.name,
+        phone_number=new_user.phone_number,
+    )
+
+
 @router.get("/{user_id}", response_model=UserModelDTO)
 async def get_user(user_id: int, user_dao: UserDAO = Depends()) -> UserModel:
     user = await user_dao.read_user(user_id=user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return user
-
-
-@router.put("")
-async def add_user(new_user: UserModelInputDTO, user_dao: UserDAO = Depends()) -> None:
-    await user_dao.create_user(
-        role=new_user.role,
-        name=new_user.name,
-        phone_number=new_user.phone_number,
-    )
 
 
 @router.delete("/{user_id}")
