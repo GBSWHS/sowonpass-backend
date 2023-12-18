@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, AsyncGenerator
 
 import pytest
@@ -10,6 +11,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from sowonpass_backend.db.dao.user_dao import UserDAO
+from sowonpass_backend.db.dao.verification_process_dao import VerificationProcessDAO
 from sowonpass_backend.db.dependencies import get_db_session
 from sowonpass_backend.db.utils import create_database, drop_database
 from sowonpass_backend.settings import settings
@@ -108,3 +111,20 @@ async def client(
     """
     async with AsyncClient(app=fastapi_app, base_url="http://test") as ac:
         yield ac
+
+
+@pytest.fixture
+async def test_user(dbsession: AsyncSession) -> int:
+    user_dao = UserDAO(dbsession)
+    test_uuid = uuid.uuid4().hex
+    return await user_dao.create_user(role=1, name=test_uuid, phone_number=test_uuid)
+
+
+@pytest.fixture
+async def test_process(dbsession: AsyncSession) -> int:
+    verification_process_dao = VerificationProcessDAO(dbsession)
+    test_uuid = uuid.uuid4().hex
+    return await verification_process_dao.create_process(
+        name=test_uuid,
+        description=test_uuid,
+    )
