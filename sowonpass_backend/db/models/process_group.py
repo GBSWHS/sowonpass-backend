@@ -21,7 +21,9 @@ class ProcessGroupModel(Base):
     name: Mapped[str] = mapped_column(String(length=100), nullable=False)
     description: Mapped[str] = mapped_column(String(length=100), nullable=False)
 
-    processes: Mapped[List["VerificationProcessModel"]] = relationship()
+    processes: Mapped[List["VerificationProcessModel"]] = relationship(
+        cascade="all, delete",
+    )
 
     time_created: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),

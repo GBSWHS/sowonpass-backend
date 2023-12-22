@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     public_key_url: str = ""
     client_id: str = ""
     auth_secret: str = ""
+    auth_refresh_secret: str = ""
     auth_algorithm: str = ""
     auth_expire_hours: int = 0
     auth_refresh_expire_hours: int = 0

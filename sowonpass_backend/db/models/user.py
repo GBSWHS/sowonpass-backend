@@ -24,18 +24,16 @@ class UserModel(Base):
     name: Mapped[str] = mapped_column(String(length=100), nullable=False)
     phone_number: Mapped[str] = mapped_column(String(length=100), nullable=False)
     totp_secret: Mapped[str] = mapped_column(String(length=100), nullable=True)
-    gender: Mapped[str] = mapped_column(String(length=1), nullable=True)
-    classroom_number: Mapped[int] = mapped_column(nullable=True)
-    student_number: Mapped[int] = mapped_column(nullable=True)
-    room_number: Mapped[int] = mapped_column(nullable=True)
 
     processes: Mapped[List["VerificationProcessModel"]] = relationship(
         secondary=process_user,
         back_populates="users",
+        passive_deletes=True,
     )
     assigned_processes: Mapped[List["VerificationProcessModel"]] = relationship(
         secondary=process_assignee,
         back_populates="assignees",
+        passive_deletes=True,
     )
 
     time_created: Mapped[DateTime] = mapped_column(

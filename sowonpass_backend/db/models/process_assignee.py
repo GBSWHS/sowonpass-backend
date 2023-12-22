@@ -7,8 +7,12 @@ process_assignee = Table(
     Base.metadata,
     Column(
         "verification_process",
-        ForeignKey("verification_process.id"),
+        ForeignKey("verification_process.id", ondelete="CASCADE"),
         primary_key=True,
     ),
-    Column("user", ForeignKey("user.id"), primary_key=True),
+    Column(
+        "user",
+        ForeignKey("user.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )

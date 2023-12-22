@@ -39,6 +39,11 @@ class UserDAO:
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
+    async def read_user_totp_secret(self, user_id: int) -> str | None:
+        stmt = select(UserModel.totp_secret).where(UserModel.id == user_id)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def update_user_totp_secret(self, user_id: int, totp_secret: str) -> None:
         stmt = (
             update(UserModel)

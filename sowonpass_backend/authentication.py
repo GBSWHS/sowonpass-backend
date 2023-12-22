@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from sowonpass_backend.db.dao.user_dao import UserDAO
 from sowonpass_backend.db.dependencies import get_db_session
-from sowonpass_backend.db.enum.user_enum import UserRole
+from sowonpass_backend.db.enum.user_role import UserRole
 from sowonpass_backend.db.models.user import UserModel
 from sowonpass_backend.settings import settings
 
@@ -18,17 +18,10 @@ class BearAuthError(Exception):
     pass  # noqa: WPS420, WPS604
 
 
-def create_token(user_id: int, is_refresh: bool = False) -> str:
-    if is_refresh:
-        hours = settings.auth_refresh_expire_hours
-        data = f"{user_id}.refresh"
-    else:
-        hours = settings.auth_expire_hours
-        data = str(user_id)
-
-    expire = datetime.utcnow() + timedelta(hours=hours)
+def create_access_token(user_id: int) -> str:
+    expire = datetime.utcnow() + timedelta(hours=settings.auth_expire_hours)
     payload = {
-        "id": data,
+        "id": user_id,
         "exp": int(expire.timestamp()),
     }
 
@@ -39,14 +32,28 @@ def create_token(user_id: int, is_refresh: bool = False) -> str:
     )
 
 
-def get_token_payload(token: str = Depends(oauth2_scheme)) -> str:
+def create_refresh_token(user_id: int) -> str:
+    expire = datetime.utcnow() + timedelta(hours=settings.auth_refresh_expire_hours)
+    payload = {
+        "id": user_id,
+        "exp": int(expire.timestamp()),
+    }
+
+    return jwt.encode(
+        payload,
+        settings.auth_refresh_secret,
+        algorithm=settings.auth_algorithm,
+    )
+
+
+def get_token_payload(token: str = Depends(oauth2_scheme)) -> int:
     try:
         payload = jwt.decode(
             token,
             settings.auth_secret,
             algorithms=[settings.auth_algorithm],
         )
-        payload_sub: str = payload["id"]
+        payload_sub: int = payload["id"]
 
         if payload_sub is None:
             raise BearAuthError("Token could not be validated")
@@ -55,23 +62,17 @@ def get_token_payload(token: str = Depends(oauth2_scheme)) -> str:
         raise BearAuthError("Token could not be validated")
 
 
-async def auth_or_create(
+async def authenticate_user(
     name: str,
     phone_number: str,
-    user_type: int,
     user_dao: UserDAO,
 ) -> UserModel | None:
     user = await user_dao.read_user_by_info(name, phone_number)
 
-    if user:
-        return user
-
-    if user_type == 2:
-        user_id = await user_dao.create_user(name, phone_number, UserRole.ADMIN.value)
-        user = await user_dao.read_user(user_id)
-    else:
-        user_id = await user_dao.create_user(name, phone_number, UserRole.USER.value)
-        user = await user_dao.read_user(user_id)
+    if not user:
+        return None
+    if user.role == UserRole.ADMIN.value:
+        return None
     return user
 
 
@@ -89,7 +90,7 @@ async def get_current_user(
         )
 
     user_dao = UserDAO(db)
-    user = await user_dao.read_user(int(user_id))
+    user = await user_dao.read_user(user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
