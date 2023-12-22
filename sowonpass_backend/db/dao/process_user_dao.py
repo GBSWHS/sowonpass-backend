@@ -12,12 +12,27 @@ class ProcessUserDAO:
     def __init__(self, session: AsyncSession = Depends(get_db_session)):
         self.session = session
 
-    async def create_process_user(self, process_id: int, user_id: int) -> None:
+    async def create_process_user(self, process_id: int, user_id: int) -> int:
         stmt = insert(process_user).values(
             verification_process=process_id,
             user=user_id,
         )
-        await self.session.execute(stmt)
+        result = await self.session.execute(stmt)
+        return result.lastrowid
+
+    async def read_process_user(
+        self,
+        process_id: int,
+        user_id: int,
+    ) -> UserModel | None:
+        stmt = select(UserModel).where(
+            and_(
+                process_user.c.verification_process == process_id,
+                process_user.c.user == user_id,
+            ),
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
 
     async def read_process_users(self, process_id: int) -> list[UserModel]:
         stmt = select(VerificationProcessModel).where(
